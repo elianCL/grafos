@@ -99,6 +99,7 @@ class Grafo:
     def acharPonteTarjan(self):
         visitados = []
         #discovery, minimum, pai
+        #DMP = dict(zip(self.vertices.keys(), [-1, -1, -1]))
         DMP = dict(zip(self.vertices.keys(), [-1, -1, -1]))
         td = 0
         
@@ -119,8 +120,9 @@ class Grafo:
                 ver = restantes(ver)[0]
             visitados.append(ver)
             DMP[ver] = [td, td, auxP]
-            for i in set(self.verticesAdjacentesSEM(ver))-set(auxP):
-                if(DMP[i][1] < DMP[ver][1]):
+            print(DMP)
+            for i in list(set(self.verticesAdjacentesSEM(ver))-{auxP}):
+                if(DMP[i][1] != -1 and DMP[i][1] < DMP[ver][1]):
                     DMP[ver][1] = DMP[i][1]
             #como as vertices são atualizadas?
         print(DMP)
