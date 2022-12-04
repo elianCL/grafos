@@ -99,12 +99,22 @@ class Grafo:
     def acharPonteTarjan(self):
         visitados = []
         #discovery, minimum, pai
-        #DMP = dict(zip(self.vertices.keys(), [-1, -1, -1]))
-        DMP = dict(zip(self.vertices.keys(), [-1, -1, -1]))
+        DMP = {}
+        for i in list(self.vertices.keys()):
+            DMP[i] = [-1, -1, -1]
         td = 0
         
         def restantes(ver):
             return list(set(self.verticesAdjacentesSEM(ver))-set(visitados))
+
+        def atualizarPeso(ver):
+            aSeremAtualizadas = []
+            verticesMenosPai = set(self.verticesAdjacentesSEM(ver))-{DMP[ver][2]}
+            for i in verticesMenosPai:
+                if(DMP[i][1] != -1 and DMP[i][1] < DMP[ver][1]):
+                    DMP[ver][1] = DMP[i][1]
+                    for j in verticesMenosPai:
+                        atualizarPeso(j)
         
         ver = list(self.vertices.keys())[0]
         visitados.append(ver)
@@ -113,20 +123,30 @@ class Grafo:
             td += 1
             if(len(restantes(ver)) == 0):
                 ver = list(set(self.vertices.keys())-set(visitados))[0]
-                auxP = td
+                auxP = ver
+                if(len(self.verticesAdjacentes(ver)) == 0):
+                    auxP = -1
+                    #grafo desconexo
+                else:
+                    auxP = self.verticesAdjacentes(ver)[0]
                 #arestas de retorno
             else:
                 auxP = ver
                 ver = restantes(ver)[0]
             visitados.append(ver)
             DMP[ver] = [td, td, auxP]
-            print(DMP)
-            for i in list(set(self.verticesAdjacentesSEM(ver))-{auxP}):
-                if(DMP[i][1] != -1 and DMP[i][1] < DMP[ver][1]):
-                    DMP[ver][1] = DMP[i][1]
-            #como as vertices são atualizadas?
-        print(DMP)
-        return visitados
+            atualizarPeso(ver)
+
+        #print(DMP)
+        visitados = []
+        pontes = []
+        for i in set(DMP.keys())-set(visitados):
+            visitados.append(i)
+            for j in self.verticesAdjacentesSEM(i):
+                if(DMP[i][1] > DMP[j][1]):
+                    pontes.append([i, j])
+            
+        return pontes
     
     def acharPonteNaive(self):
         pontes = []
@@ -136,6 +156,76 @@ class Grafo:
             if(not clone.isConexo()):
                 pontes.append(self.arestas()[i])
         return pontes
+
+    def fleuryNaive(self):
+        clone = copy.deepcopy(self)
+        caminho = []
+        vertices = list(clone.vertices.keys())
+        #se V(G) possuir 3 ou mais vértices de grau ímpar então PARE
+        impares = []
+        for i in vertices:
+            if(len(clone.verticesAdjacentesSEM(i))%2 > 0):
+                impares.append(i)
+        if(len(impares) >= 3):
+            return False
+
+        #escolher v cujo grau seja ímpar, se houver
+        pontes = [set(x) for x in clone.acharPonteNaive()]
+        arestas = [set(i) for i in clone.arestas() if i not in pontes]
+        if(len(impares) > 0):
+            ver = vertices[impares[0]]
+        else:
+            ver = vertices[0]
+        caminho.append(ver)
+
+        while(len(arestas)>0):
+            for i in clone.verticesAdjacentesSEM(ver): 
+                if({ver, i} in arestas or (len(clone.verticesAdjacentesSEM(ver)) == 1 and {ver, i} in pontes)):
+                    clone.removeAresta(ver, i)
+                    caminho.append(i)
+                    arestas.remove({ver, i})
+                    ver = i
+                    break
+                
+                pontes = [set(x) for x in clone.acharPonteNaive()]
+                arestas = [set(j) for j in clone.arestas() if j not in pontes]
+    
+        return caminho
+
+    def fleuryTarjan(self):
+        clone = copy.deepcopy(self)
+        caminho = []
+        vertices = list(clone.vertices.keys())
+        #se V(G) possuir 3 ou mais vértices de grau ímpar então PARE
+        impares = []
+        for i in vertices:
+            if(len(clone.verticesAdjacentesSEM(i))%2 > 0):
+                impares.append(i)
+        if(len(impares) >= 3):
+            return False
+
+        #escolher v cujo grau seja ímpar, se houver
+        pontes = [set(x) for x in clone.acharPonteTarjan()]
+        arestas = [set(i) for i in clone.arestas() if i not in pontes]
+        if(len(impares) > 0):
+            ver = vertices[impares[0]]
+        else:
+            ver = vertices[0]
+        caminho.append(ver)
+
+        while(len(arestas)>0):
+            for i in clone.verticesAdjacentesSEM(ver): 
+                if({ver, i} in arestas or (len(clone.verticesAdjacentesSEM(ver)) == 1 and {ver, i} in pontes)):
+                    clone.removeAresta(ver, i)
+                    caminho.append(i)
+                    arestas.remove({ver, i})
+                    ver = i
+                    break
+                
+                pontes = [set(x) for x in clone.acharPonteTarjan()]
+                arestas = [set(j) for j in clone.arestas() if j not in pontes]
+                
+        return caminho
 
     def isConexo(self):
         #busca em largura
@@ -173,9 +263,6 @@ class Grafo:
         return visitados
 
     
-        
-    
-
     
 
 a = Grafo("a", 7)
@@ -187,3 +274,12 @@ a.addAresta(2,4)
 a.addAresta(3,4)
 a.addAresta(3,5)
 a.addAresta(4,5)
+
+b = Grafo("b", 5)
+b.addAresta(0,3)
+b.addAresta(0,2)
+b.addAresta(1,4)
+b.addAresta(1,3)
+b.addAresta(1,2)
+b.addAresta(2,3)
+b.addAresta(2,4)
