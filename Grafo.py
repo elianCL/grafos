@@ -1,4 +1,5 @@
 import copy
+import time
 
 class Grafo:
 
@@ -10,6 +11,7 @@ class Grafo:
             self.addVertice(i)
 
 
+    #vertices
     def addVertice(self, vertice, peso=1):
         self.vertices[vertice] = []
         self.pesos[vertice] = peso
@@ -36,7 +38,8 @@ class Grafo:
     def quantVertices(self):
         return len(self.vertices)
     
-            
+
+    #arestas 
     def addAresta(self, verA, verB, peso=1):    
         self.vertices[verA].append([verB, peso])
         self.vertices[verB].append([verA, peso])
@@ -71,7 +74,9 @@ class Grafo:
                 if(not((ls in res) or ([ls[-1],ls[0]] in res))):
                     res.append(ls)            
         return res
-    
+
+
+    #grafo
     def isVazio(self):
         return self.quantVertices() == 0
         
@@ -283,3 +288,61 @@ b.addAresta(1,3)
 b.addAresta(1,2)
 b.addAresta(2,3)
 b.addAresta(2,4)
+
+#grafo 100 vertices
+ant = 3
+gc = Grafo("gc", 100)
+for i in gc.vertices:
+    gc.addAresta(i, ant)
+    ant = i
+print("100 vértices")
+start_time = time.time()
+gc.fleuryNaive()
+print("tempo de execução fleury modo naive: %s" % (time.time() - start_time))
+start_time = time.time()
+gc.fleuryTarjan()
+print("tempo de execução fleury modo tarjan: %s" % (time.time() - start_time))
+
+
+#grafo 1.000 vertices
+ant = 3
+gm = Grafo("gm", 1000)
+for i in gm.vertices:
+    gm.addAresta(i, ant)
+    ant = i
+print("1.000 vértices")
+start_time = time.time()
+gm.fleuryNaive()
+print("tempo de execução fleury modo naive: %s" % (time.time() - start_time))
+start_time = time.time()
+gm.fleuryTarjan()
+print("tempo de execução fleury modo tarjan: %s" % (time.time() - start_time))
+
+#grafo 10.000 vertices
+ant = 3
+gdm = Grafo("gdm", 10000)
+for i in gdm.vertices:
+    gdm.addAresta(i, ant)
+    ant = i
+print("10.000 vértices")
+start_time = time.time()
+gdm.fleuryNaive()
+print("tempo de execução fleury modo naive: %s" % (time.time() - start_time))
+start_time = time.time()
+gdm.fleuryTarjan()
+print("tempo de execução fleury modo tarjan: %s" % (time.time() - start_time))
+
+#grafo 100.000 vertices
+ant = 3
+gcm = Grafo("gcm", 100000)
+for i in gcm.vertices:
+    gcm.addAresta(i, ant)
+    ant = i
+start_time = time.time()
+print("100.000 vértices")
+start_time = time.time()
+gcm.fleuryNaive()
+print("tempo de execução fleury modo naive: %s" % (time.time() - start_time))
+start_time = time.time()
+gcm.fleuryTarjan()
+print("tempo de execução fleury modo tarjan: %s" % (time.time() - start_time))
