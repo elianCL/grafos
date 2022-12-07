@@ -267,27 +267,7 @@ class Grafo:
                             
         return visitados
 
-    
-    
 
-a = Grafo("a", 7)
-a.addAresta(1,0)
-a.addAresta(1,2)
-a.addAresta(2,6)
-a.addAresta(2,3)
-a.addAresta(2,4)
-a.addAresta(3,4)
-a.addAresta(3,5)
-a.addAresta(4,5)
-
-b = Grafo("b", 5)
-b.addAresta(0,3)
-b.addAresta(0,2)
-b.addAresta(1,4)
-b.addAresta(1,3)
-b.addAresta(1,2)
-b.addAresta(2,3)
-b.addAresta(2,4)
 
 #grafo 100 vertices
 ant = 3
